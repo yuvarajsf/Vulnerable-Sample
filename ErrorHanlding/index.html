@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-12">
+        <h1 class="text-3xl font-bold text-center mb-6">User Information</h1>
+        <div class="flex justify-center">
+            <input id="userIdInput" type="text" class="border border-gray-300 rounded-md px-4 py-2 mr-2" placeholder="Enter User ID">
+            <button id="getUserBtn" class="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2">Get User</button>
+        </div>
+        <div id="userInfo" class="mt-6 hidden">
+            <h2 class="text-xl font-bold mb-2">User Information:</h2>
+            <div id="userDetails" class="border border-gray-300 rounded-md p-4"></div>
+        </div>
+        <div id="error" class="text-red-500 mt-4"></div>
+    </div>
+
+    <script>
+        document.getElementById("getUserBtn").addEventListener("click", async () => {
+            const userId = document.getElementById("userIdInput").value;
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/user/${userId}`);
+                const data = await response.json();
+                console.log(data);
+                if (data.status_code === 200) {
+                    document.getElementById("userInfo").classList.remove("hidden");
+                    document.getElementById("userDetails").innerHTML = `
+                        <p><strong>ID:</strong> ${data.data.id}</p>
+                        <p><strong>Name:</strong> ${data.data.name}</p>
+                        <p><strong>Age:</strong> ${data.data.age}</p>
+                    `;
+                    document.getElementById("error").innerText = "";
+                }
+                else if (data.status_code === 500) {
+                    document.getElementById("userInfo").classList.add("hidden");
+                    document.getElementById("error").innerText = data.data;
+                    document.getElementById("error").innerText += "\nException: " + data.exe;
+                } else {
+                    document.getElementById("userInfo").classList.add("hidden");
+                    document.getElementById("error").innerText = data.data;
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById("error").innerText = "An error occurred. Please try again later.";
+            }
+        });
+    </script>
+</body>
+</html>
